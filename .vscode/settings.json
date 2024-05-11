@@ -1,6 +1,15 @@
 {
     "files.associations": {
         "timers.h": "c",
-        "hw_ints.h": "c"
-    }
+        "hw_ints.h": "c",
+        "gpio.h": "c",
+        "freertos.h": "c",
+        "stdint.h": "c",
+        "task.h": "c",
+        "hw_memmap.h": "c",
+        "isr_functions.h": "c",
+        "interrupthandler.h": "c",
+        "queue.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

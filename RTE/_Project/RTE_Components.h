@@ -16,21 +16,21 @@
  */
 #define CMSIS_device_header "TM4C123.h"
 
-/* ARM.FreeRTOS::RTOS:Config:FreeRTOS:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Config:FreeRTOS:10.5.1 */
 #define RTE_RTOS_FreeRTOS_CONFIG        /* RTOS FreeRTOS Config for FreeRTOS API */
-/* ARM.FreeRTOS::RTOS:Core:Cortex-M:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Core:Cortex-M:10.5.1 */
 #define RTE_RTOS_FreeRTOS_CORE          /* RTOS FreeRTOS Core */
-/* ARM.FreeRTOS::RTOS:Coroutines:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Coroutines:10.5.1 */
 #define RTE_RTOS_FreeRTOS_COROUTINE     /* RTOS FreeRTOS Co-routines */
-/* ARM.FreeRTOS::RTOS:Event Groups:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Event Groups:10.5.1 */
 #define RTE_RTOS_FreeRTOS_EVENTGROUPS   /* RTOS FreeRTOS Event Groups */
-/* ARM.FreeRTOS::RTOS:Heap:Heap_1:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Heap:Heap_1:10.5.1 */
 #define RTE_RTOS_FreeRTOS_HEAP_1        /* RTOS FreeRTOS Heap 1 */
-/* ARM.FreeRTOS::RTOS:Message Buffer:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Message Buffer:10.5.1 */
 #define RTE_RTOS_FreeRTOS_MESSAGE_BUFFER /* RTOS FreeRTOS Message Buffers */
-/* ARM.FreeRTOS::RTOS:Stream Buffer:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Stream Buffer:10.5.1 */
 #define RTE_RTOS_FreeRTOS_STREAM_BUFFER /* RTOS FreeRTOS Stream Buffers */
-/* ARM.FreeRTOS::RTOS:Timers:11.1.0 */
+/* ARM.FreeRTOS::RTOS:Timers:10.5.1 */
 #define RTE_RTOS_FreeRTOS_TIMERS        /* RTOS FreeRTOS Timers */
 
 
