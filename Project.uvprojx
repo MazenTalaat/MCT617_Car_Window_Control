@@ -409,6 +409,21 @@
               <FileType>1</FileType>
               <FilePath>.\ISR_Functions.c</FilePath>
             </File>
+            <File>
+              <FileName>common.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\common.h</FilePath>
+            </File>
+            <File>
+              <FileName>systemConfig.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\systemConfig.c</FilePath>
+            </File>
+            <File>
+              <FileName>systemConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\systemConfig.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

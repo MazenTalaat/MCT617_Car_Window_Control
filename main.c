@@ -1,7 +1,8 @@
 /********************************************************************************
  * INCLUDES
  ********************************************************************************/
-
+#include "common.h"
+#include "systemConfig.h"
 #include "interruptHandler.h"
 #include "ISR_Functions.h"
 
@@ -43,25 +44,10 @@ void vTaskFunctionJamDetectedReceiver(void *pvParameters);
 
 int main(void)
 {
-    // Set the system clock to 40MHz
-    SysCtlClockSet(SYSCTL_SYSDIV_5 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
-
-    // Enable the GPIO port that is used for the driver and passenger buttons, jam button and lock switch
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-    // Enable the GPIO port that is used for the motor, limit switches
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-
-    // Configure the driver and passenger buttons, jam button and lock switch as inputs
-    GPIOPinTypeGPIOInput(GPIO_PORTA_BASE, GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
-    GPIOPadConfigSet(GPIO_PORTA_BASE, GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
-
-    // Configure the limit switch pins as inputs
-    GPIOUnlockPin(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-    GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-    GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_STRENGTH_12MA, GPIO_PIN_TYPE_STD_WPU);
-
-    // Configure the motor pins as outputs
-    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);
+    // Init the MCU
+    CLK_Init();
+    GPIO_Init();
+    INT_Init();
 
     // Create the semaphores
     xSemaphorePassengerUp = xSemaphoreCreateBinary();
@@ -85,22 +71,6 @@ int main(void)
     xTaskCreate(vTaskFunctionUpperLimit, "Task Upper Limit", configMINIMAL_STACK_SIZE, NULL, 1U, NULL);
     xTaskCreate(vTaskFunctionJamDetectedSender, "Task Jam Detected Sender", configMINIMAL_STACK_SIZE, NULL, 1U, NULL);
     xTaskCreate(vTaskFunctionJamDetectedReceiver, "Task Jam Detected Receiver", configMINIMAL_STACK_SIZE, NULL, 1U, NULL);
-
-    // Configure the interrupts for the switch pins of Port A
-    IntEnable(INT_GPIOA);
-    GPIOIntTypeSet(GPIO_PORTA_BASE, GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_7, GPIO_FALLING_EDGE);
-    GPIOIntRegister(GPIO_PORTA_BASE, GPIOA_Handler);
-    GPIOIntClear(GPIO_PORTA_BASE, GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_7);
-    GPIOIntEnable(GPIO_PORTA_BASE, GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_7);
-    IntPrioritySet(INT_GPIOA, configMAX_SYSCALL_INTERRUPT_PRIORITY + 1U);
-
-    // Configure the interrupts for the switch pins of Port F
-    IntEnable(INT_GPIOF);
-    GPIOIntTypeSet(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_BOTH_EDGES);
-    GPIOIntRegister(GPIO_PORTF_BASE, GPIOF_Handler);
-    GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-    GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-    IntPrioritySet(INT_GPIOF, configMAX_SYSCALL_INTERRUPT_PRIORITY + 1U);
 
     // Start the scheduler
     vTaskStartScheduler();
@@ -126,6 +96,7 @@ void vTaskFunctionDriverUp(void *pvParameters)
         // Process interrupt for pin 4 port A
         vTaskDelay(250 / portTICK_RATE_MS);
         lowerlimitReached = false;
+        jamDetected = false;
         // Check if button is pressed
         if ((GPIOPinRead(GPIO_PORTA_BASE, GPIO_PIN_4) & GPIO_PIN_4) != GPIO_PIN_4)
         {
@@ -139,8 +110,6 @@ void vTaskFunctionDriverUp(void *pvParameters)
                     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
                     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, false);
                 }
-                if (jamDetected)
-                    jamDetected = false;
                 GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, false);
                 GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, false);
             }
@@ -222,6 +191,7 @@ void vTaskFunctionPassengerUp(void *pvParameters)
         {
             vTaskDelay(250 / portTICK_RATE_MS);
             lowerlimitReached = false;
+            jamDetected = false;
             // Check if button is pressed
             if ((GPIOPinRead(GPIO_PORTA_BASE, GPIO_PIN_2) & GPIO_PIN_2) != GPIO_PIN_2)
             {
@@ -235,8 +205,6 @@ void vTaskFunctionPassengerUp(void *pvParameters)
                         GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
                         GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, false);
                     }
-                    if (jamDetected)
-                        jamDetected = false;
                     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, false);
                     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, false);
                 }
@@ -302,7 +270,7 @@ void vTaskFunctionPassengerDown(void *pvParameters)
             }
         }
         taskYIELD();
-    };
+    }
 }
 
 /*********************************************************************************************************
